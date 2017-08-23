@@ -1,8 +1,8 @@
-//const MongoClient = require('mongodb').MongoClient; //this allows you to connect with the mongodb server and issue commands to manipulate the database
-const {MongoClient, ObjectID} = require('mongodb'); //this allows you to connect with the mongodb server and issue commands to manipulate the database
-
-var obj = new ObjectID();
-console.log(obj);
+////MongoClient
+//allows you to connect with the mongodb server and issue commands to manipulate the database
+////ObjectID 
+//lets you generate an id
+const {MongoClient, ObjectID} = require('mongodb'); 
 
 MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => { //if TodoApp is not created it will be created
     if (err) {
