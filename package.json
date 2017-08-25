@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js", // this tells heroku how to start our application
     "test": "mocha server/**/*.test.js",
     "test-watch": "nodemon --exec 'npm test'"
+  },
+  "engines": { // lets us specify various versions that heroku lets us configure
+
   },
   "repository": {
     "type": "git",
