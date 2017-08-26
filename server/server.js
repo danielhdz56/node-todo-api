@@ -69,7 +69,7 @@ app.delete('/todos/:id', (req, res) => {
         if(!todo){
             return res.status(404).send();
         }
-        res.send(todo);
+        res.send({todo}); //make sure its an object so you can modify properties on it, if not it will be an array
     }).catch((e) => {
         res.status(400).send();
     });
