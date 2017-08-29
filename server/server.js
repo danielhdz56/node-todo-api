@@ -106,8 +106,18 @@ app.patch('/todos/:id', (req, res) => {
     }).catch((e) => {
         res.status(400).send();
     })
+});
 
+// POST /users
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']); //from the request I am going to only pick up the email and password, b/c we don't want users to be able to mainpulate the token property
+    var user = new User(body); // body is an object so we can write it like so
 
+    user.save().then((user) => {
+        res.send(user);
+    }).catch((e) => {
+        res.status(400).send(e);
+    })
 });
 
 app.listen(port, () => {
