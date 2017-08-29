@@ -6,22 +6,10 @@ const {ObjectID} = require('mongodb');
 //local imports
 const {app} = require('./../server'); //destructoring to obtain the property, app, from server.js
 const {Todo} = require('./../models/todo'); 
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
-const todos = [{ // this will be added after all of of the docs get removed
-    _id: new ObjectID(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectID(),
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 3
-}];
-
-beforeEach((done) => { // This accounts for the case that there are todos, by deleting all docs from the collection
-    Todo.remove({}).then(() => { // after it deletes all data then
-        return Todo.insertMany(todos); // its going to insert an array of seed data, todos. By using return I can chain callbacks
-    }).then(() => done()); //then i can tack on done()
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 
 describe('POST /todos', () => { //describe: to group all of the routes 
