@@ -9,6 +9,7 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 const port = process.env.PORT || 3000; //gets the environment port variable that heroku is going to set, if not on heroku it will be 3000
@@ -114,13 +115,18 @@ app.post('/users', (req, res) => {
     var user = new User(body); // body is an object so we can write it like so
 
     user.save().then(() => {
-        return user.generateAuthToken();
+        return user.generateAuthToken(); //we return it to add another then callback
         //res.send(user);
     }).then((token) => {
         res.header('x-auth', token).send(user); // when we use 'x-' we are creating a custom header
     }).catch((e) => {
         res.status(400).send(e);
     })
+});
+
+
+app.get('/users/me', authenticate, (req, res) => {
+   res.send(req.user);
 });
 
 app.listen(port, () => {
