@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
-// User Model
-// email - require it - trim it - type string - set min length of 1
-var User = mongoose.model('User', {
+var UserSchema = new mongoose.Schema({ // Schema lets us add methods
     email: {
         required: true,
         trim: true,
@@ -31,5 +31,27 @@ var User = mongoose.model('User', {
         }
     }]
 });
+
+UserSchema.methods.toJSON = function () { // defines exactly what is being sent back
+    var user = this;
+    var userObject = user.toObject(); // takes mongoose variable, user, and converting it to a regular object where only the properites available to the document exist
+
+    return _.pick(userObject, ['_id', 'email']);
+};
+
+UserSchema.methods.generateAuthToken = function() { // allows us to make instance methods, they have access to the individual documents
+    var user = this;
+    var access = 'auth';
+    var token = jwt.sign({_id: user._id.toHexString(),access}, 'abc123').toString();
+
+    user.tokens.push({access, token});
+
+    return user.save().then(() => {
+        return token;
+    });
+};
+
+var User = mongoose.model('User', UserSchema); 
+
 
 module.exports = {User};

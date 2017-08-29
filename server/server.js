@@ -113,8 +113,11 @@ app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']); //from the request I am going to only pick up the email and password, b/c we don't want users to be able to mainpulate the token property
     var user = new User(body); // body is an object so we can write it like so
 
-    user.save().then((user) => {
-        res.send(user);
+    user.save().then(() => {
+        return user.generateAuthToken();
+        //res.send(user);
+    }).then((token) => {
+        res.header('x-auth', token).send(user); // when we use 'x-' we are creating a custom header
     }).catch((e) => {
         res.status(400).send(e);
     })
