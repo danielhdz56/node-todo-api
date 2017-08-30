@@ -16,9 +16,10 @@ const port = process.env.PORT || 3000; //gets the environment port variable that
 
 app.use(bodyParser.json()); // middleware, extracts the entire body portion of an incoming request and exposes it on req.body
 
-app.post('/todos', (req, res) => { 
+app.post('/todos', authenticate,  (req, res) => { 
     var todo = new Todo({
-        text: req.body.text // obtains the text property from the post request
+        text: req.body.text, // obtains the text property from the post request
+        _creator: req.user._id
     }); 
 
     todo.save().then((doc) => { //saves it to the database and returns a promise, then
@@ -28,8 +29,10 @@ app.post('/todos', (req, res) => {
     });
 });
 
-app.get('/todos', (req, res) => { // client makes request to API
-    Todo.find().then((todos) => { // find and return a promise, then
+app.get('/todos', authenticate, (req, res) => { // client makes request to API
+    Todo.find({
+        _creator: req.user._id
+    }).then((todos) => { // find and return a promise, then
         res.send({todos}); // all todos will be sent back to the client that made the request
     }, (e) => {
         res.status(400).send(e);
@@ -38,7 +41,7 @@ app.get('/todos', (req, res) => { // client makes request to API
 
 // This is how to fetch a variable that is in the url
 // GET /todos/123432
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     // req.params is an object that has key value pairs,
     // where the key is the url like parameter, and the value is what was actually placed there
     // '/todos/:id'  the keys is, id
@@ -48,7 +51,10 @@ app.get('/todos/:id', (req, res) => {
         return res.status(404).send('Invalid ID');
     }
 
-    Todo.findById(id).then((todo) => {
+    Todo.findOne({
+        _id: id,
+        _creator: req.user._id
+    }).then((todo) => {
         if(!todo){
             return res.status(404).send();
         } 
@@ -59,7 +65,7 @@ app.get('/todos/:id', (req, res) => {
     });
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     // get the id
     var id = req.params.id;
 
@@ -68,7 +74,10 @@ app.delete('/todos/:id', (req, res) => {
         return res.status(404).send();
     }
     // remove todo by id
-    Todo.findByIdAndRemove(id).then((todo) => {
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+    }).then((todo) => {
         if(!todo){
             return res.status(404).send();
         }
@@ -83,7 +92,7 @@ app.delete('/todos/:id', (req, res) => {
       //400 with empty body
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
     var body = _.pick(req.body, ['text', 'completed']);
 
@@ -98,7 +107,10 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+    }, {$set: body}, {new: true}).then((todo) => {
         if(!todo){
             return res.status(404).send();
         }
@@ -125,8 +137,8 @@ app.post('/users', (req, res) => {
 });
 
 
-app.get('/users/me', authenticate, (req, res) => {
-   res.send(req.user);
+app.get('/users/me', authenticate, (req, res) => { 
+   res.send(req.user); //authenticate lets us use req.user
 });
 
 
@@ -144,7 +156,7 @@ app.post('/users/login', (req, res) => {
 });
 
 app.delete('/users/me/token', authenticate, (req, res) => {
-    req.user.removeToken(req.token).then(() => {
+    req.user.removeToken(req.token).then(() => { // authenticate lets us use req.user and req.token
         res.status(200).send();
     }).catch((e) => {
         res.status(400).send();

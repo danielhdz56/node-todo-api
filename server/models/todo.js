@@ -14,6 +14,10 @@ var Todo = mongoose.model('Todo', { //creates a personlized way to organize data
     completedAt: {
         type: Number,
         default: null
+    },
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     }
 });
 

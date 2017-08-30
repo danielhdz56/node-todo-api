@@ -17,17 +17,23 @@ const users = [{
 }, {
     _id: userTwoId,
     email: 'gen@example.com',
-    password: 'userTwoPass'
+    password: 'userTwoPass',
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({_id: userTwoId, access: 'auth'}, 'abc123').toString()
+    }]
 }];
 
 const todos = [{ // this will be added after all of of the docs get removed
     _id: new ObjectID(),
-    text: 'First test todo'
+    text: 'First test todo',
+    _creator: userOneId
 }, {
     _id: new ObjectID(),
     text: 'Second test todo',
     completed: true,
-    completedAt: 3
+    completedAt: 3,
+    _creator: userTwoId
 }];
 
 const populateTodos = (done) => { // This accounts for the case that there are todos, by deleting all docs from the collection
