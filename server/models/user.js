@@ -47,7 +47,7 @@ UserSchema.methods.generateAuthToken = function() { // allows us to make instanc
     var token = jwt.sign({
         _id: user._id.toHexString(),
         access
-    }, 'abc123').toString(); //abc123 is our salt
+    }, process.env.JWT_SECRET).toString(); //abc123 is our salt
 
     user.tokens.push({access, token});
 
@@ -71,7 +71,7 @@ UserSchema.statics.findByToken = function(token) { // anything added to the stat
     var decoded;
 
     try {
-        decoded = jwt.verify(token, 'abc123');
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
         // return new Promise((resolve, reject) => {
         //     reject();
