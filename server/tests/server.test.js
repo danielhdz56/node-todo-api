@@ -337,7 +337,6 @@ describe('POST /users/login', () => {
             if(err) {
                 return done(err)
             }
-
             User.findById(users[1]._id).then((user) => {
                 expect(user.tokens.length).toBe(0);
                 done()
